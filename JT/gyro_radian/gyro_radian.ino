@@ -46,5 +46,5 @@ void loop(){
 //  Serial.print(" | GyX = "); Serial.println(GyX);
   //Serial.print(" | GyY = "); Serial.print(GyY);
 //  Serial.print(" | GyZ = "); Serial.println(GyZ);
-  delay(10);
+  delay(100);
 }
