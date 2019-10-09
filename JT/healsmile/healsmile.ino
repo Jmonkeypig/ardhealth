@@ -167,7 +167,8 @@ void loop() {
     delay(2000);
     system_status = SYSTEM_STATUS_READY;
   } else if (system_status == SYSTEM_STATUS_ERROR) {
-
+    delay(2000);
+    system_status = SYSTEM_STATUS_READY;
   }
 
   
