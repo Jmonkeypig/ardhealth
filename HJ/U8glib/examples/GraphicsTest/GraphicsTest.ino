@@ -86,7 +86,7 @@
 //U8GLIB_SSD1306_128X64 u8g(13, 11, 10, 9, 8);	// SW SPI Com: SCK = 13, MOSI = 11, CS = 10, A0 = 9
 //U8GLIB_SSD1306_128X64 u8g(4, 5, 6, 7);	// SW SPI Com: SCK = 4, MOSI = 5, CS = 6, A0 = 7 (new white HalTec OLED)
 //U8GLIB_SSD1306_128X64 u8g(10, 9);		// HW SPI Com: CS = 10, A0 = 9 (Hardware Pins are  SCK = 13 and MOSI = 11)
-//U8GLIB_SSD1306_128X64 u8g(U8G_I2C_OPT_NONE|U8G_I2C_OPT_DEV_0);	// I2C / TWI 
+U8GLIB_SSD1306_128X64 u8g(U8G_I2C_OPT_NONE|U8G_I2C_OPT_DEV_0);	// I2C / TWI 
 //U8GLIB_SSD1306_128X64 u8g(U8G_I2C_OPT_DEV_0|U8G_I2C_OPT_NO_ACK|U8G_I2C_OPT_FAST);	// Fast I2C / TWI 
 //U8GLIB_SSD1306_128X64 u8g(U8G_I2C_OPT_NO_ACK);	// Display which does not send AC
 //U8GLIB_SSD1306_ADAFRUIT_128X64 u8g(13, 11, 10, 9);	// SW SPI Com: SCK = 13, MOSI = 11, CS = 10, A0 = 9
@@ -147,10 +147,10 @@ void u8g_prepare(void) {
 }
 
 void u8g_box_frame(uint8_t a) {
-  u8g.drawStr( 0, 0, "drawBox");
-  u8g.drawBox(5,10,20,10);
+  u8g.drawStr( 0, 0, "drawBox");////X좌표, Y좌표, 스트링
+  u8g.drawBox(5,10,20,10);      //
   u8g.drawBox(10+a,15,30,7);
-  u8g.drawStr( 0, 30, "drawFrame");
+  u8g.drawStr( 0, 30, "drawFrame"); //X좌표, Y좌표, 스트링
   u8g.drawFrame(5,10+30,20,10);
   u8g.drawFrame(10+a,15+30,30,7);
 }
@@ -258,21 +258,22 @@ void u8g_extra_page(uint8_t a)
 }
 
 
-uint8_t draw_state = 0;
+uint8_t draw_state = 0; // 0000 0000
 
 void draw(void) {
   u8g_prepare();
-  switch(draw_state >> 3) {
-    case 0: u8g_box_frame(draw_state&7); break;
-    case 1: u8g_disc_circle(draw_state&7); break;
-    case 2: u8g_r_frame(draw_state&7); break;
-    case 3: u8g_string(draw_state&7); break;
-    case 4: u8g_line(draw_state&7); break;
-    case 5: u8g_triangle(draw_state&7); break;
-    case 6: u8g_ascii_1(); break;
-    case 7: u8g_ascii_2(); break;
-    case 8: u8g_extra_page(draw_state&7); break;
+  switch(draw_state >> 4) {                         //DRAW_STATE 비트 연산 왼쪽으로 3
+    case 0: u8g_box_frame(draw_state&15); break;    //DRAW_STATE랑 0000 0111 AND연산
+    case 1: u8g_disc_circle(draw_state&15); break;  //DRAW_STATE랑 0000 0111 AND연산
+    case 2: u8g_r_frame(draw_state&15); break;      //DRAW_STATE랑 0000 0111 AND연산
+    case 3: u8g_string(draw_state&15); break;       //DRAW_STATE랑 0000 0111 AND연산
+    case 4: u8g_line(draw_state&15); break;         //DRAW_STATE랑 0000 0111 AND연산
+    case 5: u8g_triangle(draw_state&15); break;     //DRAW_STATE랑 0000 0111 AND연산
+    case 6: u8g_ascii_1(); break;                   //DRAW_STATE랑 0000 0111 AND연산
+    case 7: u8g_ascii_2(); break;                   //DRAW_STATE랑 0000 0111 AND연산
+    case 8: u8g_extra_page(draw_state&15); break;   //DRAW_STATE랑 0000 0111 AND연산
   }
+
 }
 
 void setup(void) {
@@ -288,7 +289,7 @@ void setup(void) {
 
 void loop(void) {
   
-  // picture loop  
+  // 그림 루프 
   u8g.firstPage();  
   do {
     draw();
@@ -303,5 +304,3 @@ void loop(void) {
   //delay(150);
 
 }
-
-
