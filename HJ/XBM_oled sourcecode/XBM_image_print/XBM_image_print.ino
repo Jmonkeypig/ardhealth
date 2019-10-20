@@ -12,12 +12,16 @@
 
 U8G2_SSD1327_WS_128X128_1_4W_SW_SPI u8g2(U8G2_R0, /* clock=*/ 12, /* data=*/ 11, /* cs=*/ 10, /* dc=*/ 9, /* reset=*/ 8);
 //display constructor
+//controler : SSD1327
+//product : waveshare
+//interface : SPI
+//PIN setting
 
-#define eyes_width 16
-#define eyes_height 43
-//left eye coordinate  x,y(27,17)
+#define eye_width 16 //
+#define eye_height 43//
+//left  eye coordinate x,y(27,17)
 //right eye coordinate x,y(85,17)
-static const unsigned char eyes_bits[] U8X8_PROGMEM = {
+static const unsigned char eye_bits[] U8X8_PROGMEM = {
    0xc0, 0x07, 0xf0, 0x1f, 0xf8, 0x3f, 0xfc, 0x7f, 0xfe, 0xff, 0xfe, 0xff,
    0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
    0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
@@ -879,16 +883,16 @@ static const unsigned char rest_dot_bits[] U8X8_PROGMEM = {
 void draw_smile(void) {
  u8g2.firstPage();
   do {
-    u8g2.drawXBMP(27,17, eyes_width, eyes_height , eyes_bits);
-    u8g2.drawXBMP(85,17, eyes_width, eyes_height , eyes_bits);
-    u8g2.drawXBMP(17,74, smile_mouth_width, smile_mouth_height , smile_mouth_bits);
+    u8g2.drawXBMP(27,17, eye_width, eye_height , eye_bits); //left eye
+    u8g2.drawXBMP(85,17, eye_width, eye_height , eye_bits); //right eye
+    u8g2.drawXBMP(17,74, smile_mouth_width, smile_mouth_height , smile_mouth_bits); // smile mouth
   } while ( u8g2.nextPage() );
 }
 void draw_bad(void) {
  u8g2.firstPage();
   do {
-    u8g2.drawXBMP(27,17, eyes_width, eyes_height , eyes_bits);
-    u8g2.drawXBMP(85,17, eyes_width, eyes_height , eyes_bits);
+    u8g2.drawXBMP(27,17, eye_width, eye_height , eye_bits);
+    u8g2.drawXBMP(85,17, eye_width, eye_height , eye_bits);
     u8g2.drawXBMP(17,74, bad_mouth_width, bad_mouth_height , bad_mouth_bits);
   } while ( u8g2.nextPage() );
 }
@@ -944,14 +948,14 @@ void draw_rest(void){
    delay(500);
   } 
 }
-void draw_pause(void) //사각형으로 대체
+void draw_pause(void) //
 {
   u8g2.firstPage();
   do {
-//  u8g2.drawXBMP(26,23,pause_dot_width, pause_dot_height, rest_dot_bits);
-//  u8g2.drawXBMP(73,23,pause_dot_width, pause_dot_height, rest_dot_bits);
-    u8g2.drawBox(26,23, 30, 80);
-    u8g2.drawBox(73,23, 30, 80);
+//  u8g2.drawXBMP(26,23,pause_dot_width, pause_dot_height, rest_dot_bits); //기존 이미지 깨짐
+//  u8g2.drawXBMP(73,23,pause_dot_width, pause_dot_height, rest_dot_bits); //수정해도 안됨
+    u8g2.drawBox(26,23, 30, 80); //사각형 그리기로 대체
+    u8g2.drawBox(73,23, 30, 80); //사각형 그리기로 대체
    } while ( u8g2.nextPage() );
 }
 void draw_wave(void)
@@ -973,11 +977,12 @@ void draw_wave(void)
 
 void setup(void) {
   u8g2.begin();  
+  u8g2.setContrast(255);
 }
 
 void loop(void) {
 
-   
+//200ms delay ordered image print
 draw_bpm();
 delay(200);
 draw_setting();
@@ -1000,4 +1005,5 @@ draw_pause();
 delay(200);
 draw_wave();
 delay(200);
+
 }

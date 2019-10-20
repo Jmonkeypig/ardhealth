@@ -177,7 +177,7 @@
 #define NOTE_DS8 4978
 
 
-int speakerpin = 12;
+int speakerpin = 7;
 int melody[] = {NOTE_G7,NOTE_G7,NOTE_A7,NOTE_A7,NOTE_G7,
                 NOTE_G7,NOTE_E7,NOTE_G7,NOTE_G7,NOTE_E7,
                 NOTE_E7,NOTE_D7,NOTE_G7,NOTE_G7,NOTE_A7,
@@ -198,8 +198,8 @@ void setup() {
 }
 
 void loop() {
- tone(speakerpin,500,500);  //500: 음의 높낮이(주파수), 1000: 음의 지속시간(1초)
- delay(2000); 
+ tone(speakerpin,1000,300);  //500: 음의 높낮이(주파수), 1000: 음의 지속시간(1초)
+ delay(500); 
 
 
 }
