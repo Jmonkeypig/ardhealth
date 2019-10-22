@@ -1028,6 +1028,14 @@ void setup(void) {
 
   
 }
+void writeString(String stringData) { // Used to serially push out a String with Serial.write()
+
+  for (int i = 0; i < stringData.length(); i++)
+  {
+    BTSerial.write(stringData[i]);   // Push each char 1 by 1 on each loop pass
+  }
+
+}// end writeString
 
 void loop(void) {
   if (system_status == SYSTEM_STATUS_READY) {
@@ -1107,9 +1115,10 @@ void loop(void) {
           
           count = count +1;
           drawFloat(count);
-         
+//          char ShowData = count;
+//          BTSerial.write(ShowData);
+          writeString(String(count));
       }
-     
     }
 
      if(val_y > 80){
@@ -1130,7 +1139,7 @@ void loop(void) {
      if(BTSerial.available()){
 
 //      Serial.write(BTSerial.read());
-       int inChar = BTSerial.read();
+        int inChar = BTSerial.read();
        
       if (isDigit(inChar)) {
         // convert the incoming byte to a char and add it to the string:
