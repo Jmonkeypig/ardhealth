@@ -33,7 +33,7 @@ long count = 0;
 //long timer = 0;
 //long gyroval = 0;
 bool checkCount = true;
-
+char inString = 'a';
 U8G2_SSD1327_WS_128X128_1_4W_SW_SPI u8g2(U8G2_R0, /* clock=*/ 12, /* data=*/ 11, /* cs=*/ 10, /* dc=*/ 9, /* reset=*/ 8);
 //display constructor
 
@@ -1035,13 +1035,19 @@ void loop(void) {
     draw_smile();
 
     if(BTSerial.available()){
-      Serial.write(BTSerial.read());
-      byte data = BTSerial.read();
-      Serial.println(data);
-      if(data == 255){
-        
-        system_status = SYSTEM_STATUS_COUNT;
+      int inChar = BTSerial.read();
+       
+      if (isDigit(inChar)) {
+        // convert the incoming byte to a char and add it to the string:
+        inString = (char)inChar;
+        Serial.println(inString);
+        if(inString == '0'){
+          Serial.println("count");
+          tone(speakerpin,500,500);  //500: 음의 높낮이(주파수), 1000: 음의 지속시간(1초)
+          system_status = SYSTEM_STATUS_COUNT;
+        }
       }
+      
     }
     delay(100);
   }
@@ -1122,12 +1128,18 @@ void loop(void) {
     }
 
      if(BTSerial.available()){
-      Serial.write(BTSerial.read());
-      byte data = BTSerial.read();
-      Serial.println(data);
-      if(data == 255){
-        tone(speakerpin,500,500);  //500: 음의 높낮이(주파수), 1000: 음의 지속시간(1초)
-        system_status == SYSTEM_STATUS_READY;
+
+//      Serial.write(BTSerial.read());
+       int inChar = BTSerial.read();
+       
+      if (isDigit(inChar)) {
+        // convert the incoming byte to a char and add it to the string:
+        inString = (char)inChar;
+        if(inString == '1'){
+          Serial.println("testetetet");
+          tone(speakerpin,500,500);  //500: 음의 높낮이(주파수), 1000: 음의 지속시간(1초)
+          system_status = SYSTEM_STATUS_READY;
+        }
       }
     }
 
