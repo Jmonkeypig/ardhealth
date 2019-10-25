@@ -916,22 +916,24 @@ void loop() {
   {
     Serial.println("a if문 들어옴");
     a_position_check(&system_status);
-    delay(2000);
+    
+    delay(1000);
     if (system_status == SYSTEM_STATUS_PLAYING2)
     {
       Serial.println("b if문 들어옴");
       b_position_check(&system_status);
-      delay(2000);
+      
+      delay(1000);
       if (system_status == SYSTEM_STATUS_PLAYING3)
       {
         Serial.println("c if문 들어옴");
         c_position_check(&system_status);
-        delay(2000);
+        
+        delay(1000);
         if (system_status == SYSTEM_STATUS_END)
         {
           Serial.println(" if문 들어옴");
           system_status = SYSTEM_STATUS_READY;
-          draw_complete();
           delay(3000);
         }
       }
@@ -946,8 +948,8 @@ void draw_smile(void) {
     u8g2.drawXBMP(27, 17, eyes_width, eyes_height, eyes_bits);
     u8g2.drawXBMP(85, 17, eyes_width, eyes_height, eyes_bits);
     u8g2.drawXBMP(17, 74, smile_mouth_width, smile_mouth_height, smile_mouth_bits);
-    u8g2.setFont(u8g2_font_ncenB14_tr);   // choose a suitable font           //font setting
-    u8g2.drawStr(5, 64, "Health Mile!");    // write something to the internal //image + text
+//    u8g2.setFont(u8g2_font_ncenB14_tr);   // choose a suitable font           //font setting
+//    u8g2.drawStr(5, 64, "Health Mile!");    // write something to the internal //image + text
   } while (u8g2.nextPage());
 }
 void draw_bad(void) {
@@ -994,18 +996,18 @@ void draw_mission(void) {
     u8g2.drawXBMP(6, 6, mission_width, mission_height, mission_bits);
   } while (u8g2.nextPage());
 }
-void draw_text(const char* text, int x, int y) { //text, 좌표x, 좌표y
+void draw_text(const uint8_t* font,const char* text, int x, int y) { //text, 좌표x, 좌표y
   u8g2.firstPage();
   do {
-    u8g2.setFont(u8g2_font_ncenB18_tr);   // choose a suitable font
+    u8g2.setFont(font);   // choose a suitable font
     u8g2.drawStr(x, y, text);    // write something to the internal 
   } while (u8g2.nextPage());
 }
-void draw_value(int var) {
+void draw_value(const uint8_t* font, int var, int x, int y) {
   u8g2.firstPage();
   do {
-    //Font_setting function//
-    u8g2.setCursor(64, 64); //coordination need to be changed
+    u8g2.setFont(font); 
+    u8g2.setCursor(x, y); //coordination need to be changed
     u8g2.print(var);       // write something to the internal 
   } while (u8g2.nextPage());
 }
@@ -1092,26 +1094,27 @@ void ready_count(int* system_status) {
     draw_dummbel();
     count = 3;
     Serial.println(count);
-    
-    delay(1000);
+    draw_value(u8g2_font_logisoso92_tn,count,35,110);
+    delay(900);
     count = 2;
     Serial.println(count);
+    draw_value(u8g2_font_logisoso92_tn,count,35,110);
     
-    delay(1000);
+    delay(900);
     count = 1;
     Serial.println(count);
+    draw_value(u8g2_font_logisoso92_tn,count,35,110);
     
-    delay(1000);
-    tone(speakerpin, 950, 1000);
+    delay(900);
+    
     count = 0;
-
+    draw_dummbel();
+    delay(1500);
     *system_status = SYSTEM_STATUS_PLAYING;
     return;
   }
 }
 void a_position_check(int* system_status) {
-  draw_dummbel();
-  delay(1000);
   unsigned long start_time = millis();
   while (true) {
     if (BTSerial.available()) {
@@ -1169,8 +1172,8 @@ void a_position_check(int* system_status) {
     if (val_y < 0) {
       if (checkCount == true) {
         checkCount = false;
-        draw_value(count);
         count = count + 1;
+        draw_value(u8g2_font_logisoso92_tn,count,35,110);
         
         //          char ShowData = count;
         //          BTSerial.write(ShowData);
@@ -1181,22 +1184,24 @@ void a_position_check(int* system_status) {
     if (val_y > 80) {
       if (checkCount == false) {
         checkCount = true;
-        
+      } 
+    }
         if (count == 3) {
           count = 0;
 
-          
+          delay(1500);
           draw_smile();
 
-          delay(200);
 
+          
           *system_status = SYSTEM_STATUS_PLAYING2;
+          delay(2000);
+          writeString("next");
           return;
         }
-      }
+      
     }
   }
-}
 void b_position_check(int* system_status) {
   while (true) {
     if (BTSerial.available()) {
@@ -1247,9 +1252,8 @@ void b_position_check(int* system_status) {
     if (val_y < 0) {
       if (checkCount == true) {
         checkCount = false;
-        draw_value(count);
         count = count + 1;
-        
+        draw_value(u8g2_font_logisoso92_tn,count,35,110);
         //          char ShowData = count;
         //          BTSerial.write(ShowData);
         writeString("count");
@@ -1259,23 +1263,24 @@ void b_position_check(int* system_status) {
     if (val_y > 60) {
       if (checkCount == false) {
         checkCount = true;
-        
+      }
+    }
         if (count == 3) {
           count = 0;
 
-          
+          delay(1500);
           draw_smile();
 
-          delay(200);
+
           *system_status = SYSTEM_STATUS_PLAYING3;
-          return;
-        }
+          delay(2000);
+          writeString("next");
+          return; 
       }
-    }
+    
   }
 }
 void c_position_check(int* system_status) {
-  draw_dummbel();
   while (true) {
     if (BTSerial.available()) {
       int inChar = BTSerial.read();
@@ -1325,16 +1330,15 @@ void c_position_check(int* system_status) {
     if (val_y > 70) {
       if (checkCount == true) {
         checkCount = false;
-
-        draw_value(count);
         count = count + 1;
+        draw_value(u8g2_font_logisoso92_tn,count,35,110);
         //          char ShowData = count;
         //          BTSerial.write(ShowData);
         writeString("count");
       }
     }
 
-    if (val_y < 0) {
+      if (val_y < 0) {
       if (checkCount == false) {
         checkCount = true;
       }
@@ -1342,14 +1346,14 @@ void c_position_check(int* system_status) {
         if (count == 3) {
           count = 0;
 
-          
+          delay(1500);
           draw_smile();
-
-          delay(200);
+    
           *system_status = SYSTEM_STATUS_END;
-          delay(1000);
-          return;
-        }
-      
-    }
+          delay(2000);
+          writeString("next");
+          return; 
+      }
+    
   }
+}
