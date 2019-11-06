@@ -15,6 +15,7 @@
 #define SYSTEM_STATUS_PLAYING3 4
 #define SYSTEM_STATUS_END 5
 #define SYSTEM_STATUS_ERROR 6
+#define SYSTEM_STATUS_GAME 7
 #define PLAY_TIMEOUT 29000
 
 
@@ -42,6 +43,7 @@ char inString = 'a';
 /*graphic library constructor*/
 U8G2_SSD1327_WS_128X128_1_4W_SW_SPI u8g2(U8G2_R0, /* clock=*/ 12, /* data=*/ 11, /* cs=*/ 10, /* dc=*/ 9, /* reset=*/ 8);
 SoftwareSerial BTSerial(3, 2); //RX,TX
+//SoftwareSerial BTSerial(4, 5); //RX,TX
 /*image coordinate*/
 
 #define eyes_width 16       //left eye coordinate  x,y(27,17)
@@ -894,7 +896,7 @@ void setup() {
   Wire.endTransmission(true);  // MPU-6050 transmission end
 
   //BLE_setting,Serial_setting
-  setupBlueToothConnection();
+//  setupBlueToothConnection();
   BTSerial.begin(9600);        //BLE library setting
   Serial.begin(9600);          //Serial library setting
 
@@ -911,7 +913,11 @@ void setup() {
 void loop() {
   int system_status = SYSTEM_STATUS_READY;
   ble_check(&system_status);  //
-  ready_count(&system_status);//'0'입력시 진행 
+  if (system_status == SYSTEM_STATUS_GAME)
+  {
+   game_mode(&system_status);
+  }
+  ready_count(&system_status);// 
   if (system_status == SYSTEM_STATUS_PLAYING)
   {
     Serial.println("a if문 들어옴");
@@ -1059,27 +1065,28 @@ void writeString(String stringData) { // Used to serially push out a String with
 void ble_check(int* system_status) {
   while (true) {
     if (*system_status == SYSTEM_STATUS_READY) {
-      draw_smile();
-      if (BTSerial.available()) {
+        draw_smile();
+        if (BTSerial.available()) {
         int inChar = BTSerial.read();
-
         if (isDigit(inChar)) {
           // convert the incoming byte to a char and add it to the string:
           inString = (char)inChar;
           if (inString == '0') {
-            
+            Serial.println("0");
             *system_status = SYSTEM_STATUS_READY;
             return;
           }
           else if (inString == '1') {
-            
-
             *system_status = SYSTEM_STATUS_COUNT;
             return;
           }
+          else if (inString == '2') {
+            *system_status = SYSTEM_STATUS_GAME;
+            return;
+          }
+          }
         }
       }
-    }
     else if (*system_status == SYSTEM_STATUS_PLAYING || *system_status == SYSTEM_STATUS_PLAYING2 || *system_status == SYSTEM_STATUS_PLAYING3) {
       delay(1000);
       *system_status = SYSTEM_STATUS_READY;
@@ -1090,6 +1097,7 @@ void ble_check(int* system_status) {
 }
 void ready_count(int* system_status) {
   Serial.println("카운트들어옴");
+  *system_status = SYSTEM_STATUS_COUNT;
   if (*system_status == SYSTEM_STATUS_COUNT) {
     draw_dummbel();
     count = 3;
@@ -1115,7 +1123,7 @@ void ready_count(int* system_status) {
   }
 }
 void a_position_check(int* system_status) {
-  unsigned long start_time = millis();
+//  unsigned long start_time = millis();
   while (true) {
     if (BTSerial.available()) {
       int inChar = BTSerial.read();
@@ -1201,7 +1209,8 @@ void a_position_check(int* system_status) {
         }
       
     }
-  }
+}  
+ 
 void b_position_check(int* system_status) {
   while (true) {
     if (BTSerial.available()) {
@@ -1277,9 +1286,9 @@ void b_position_check(int* system_status) {
           writeString("next");
           return; 
       }
-    
   }
-}
+  }
+
 void c_position_check(int* system_status) {
   while (true) {
     if (BTSerial.available()) {
@@ -1351,10 +1360,63 @@ void c_position_check(int* system_status) {
     
           *system_status = SYSTEM_STATUS_END;
           delay(2000);
-          writeString("next");
+          writeString("finish");
           return; 
       }
     
   }
-  writeString("finish");
+    
 }
+
+void game_mode(int* system_status) {
+  while (true) {
+    if (BTSerial.available()) {
+      int inChar = BTSerial.read();
+
+      if (isDigit(inChar)) {
+        // convert the incoming byte to a char and add it to the string:
+        inString = (char)inChar;
+        if (inString == '0') {
+          tone(speakerpin, 500, 500);  //500: 음의 높낮이(주파수), 1000: 음의 지속시간(1초)
+          *system_status = SYSTEM_STATUS_READY;
+          return;
+        }
+      }
+    }
+    Serial.println("겜들어옴");
+    Wire.beginTransmission(MPU);    //데이터 전송시작
+    Wire.write(0x3B);               // register 0x3B (ACCEL_XOUT_H), 큐에 데이터 기록
+    Wire.endTransmission(false);    //연결유지
+    Wire.requestFrom(MPU, 6, true);  //MPU에 데이터 요청
+
+
+    //데이터 한 바이트 씩 읽어서 반환
+    AcX = Wire.read() << 8 | Wire.read();  // 0x3B (ACCEL_XOUT_H) & 0x3C (ACCEL_XOUT_L)    
+    AcY = Wire.read() << 8 | Wire.read();  // 0x3D (ACCEL_YOUT_H) & 0x3E (ACCEL_YOUT_L)
+    AcZ = Wire.read() << 8 | Wire.read();  // 0x3F (ACCEL_ZOUT_H) & 0x40 (ACCEL_ZOUT_L)
+    //Tmp = Wire.read() << 8 | Wire.read();  // 0x41 (TEMP_OUT_H) & 0x42 (TEMP_OUT_L)
+    //GyX = Wire.read() << 8 | Wire.read();  // 0x43 (GYRO_XOUT_H) & 0x44 (GYRO_XOUT_L)
+    //GyY = Wire.read() << 8 | Wire.read();  // 0x45 (GYRO_YOUT_H) & 0x46 (GYRO_YOUT_L)
+    //GyZ = Wire.read() << 8 | Wire.read();  // 0x47 (GYRO_ZOUT_H) & 0x48 (GYRO_ZOUT_L)
+
+
+    float RADIAN_TO_DEGREES = 180 / 3.14139;
+    float val_y = atan(AcX / sqrt(pow(AcY, 2) + pow(AcZ, 2))) * RADIAN_TO_DEGREES;
+    //writeString(val_y);
+    //float val_x = atan(AcY/sqrt(pow(AcX,2) + pow(AcZ,2))) * RADIAN_TO_DEGREES;
+
+    //시리얼 모니터에 출력
+    //    Serial.print("AcX = "); 
+    //    Serial.println(val_y);
+    //Serial.print(" | AcY = "); Serial.println(val_x);
+    //Serial.print(" | AcZ = "); Serial.println(AcZ);
+    //Serial.print(" | Tmp = "); Serial.print(Tmp/340.00+36.53);  
+    //Serial.print(" | GyX = "); Serial.println(GyX);
+    //Serial.print(" | GyY = "); Serial.print(GyY);
+    //Serial.print(" | GyZ = "); Serial.println(GyZ);
+    writeString(String(val_y));
+    Serial.println(String(val_y));
+    delay(100);
+    }
+    return; 
+  }
