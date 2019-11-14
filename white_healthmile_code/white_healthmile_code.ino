@@ -42,7 +42,7 @@ char inString = 'a';
 
 /*graphic library constructor*/
 U8G2_SSD1327_WS_128X128_1_4W_SW_SPI u8g2(U8G2_R0, /* clock=*/ 12, /* data=*/ 11, /* cs=*/ 10, /* dc=*/ 9, /* reset=*/ 8);
-SoftwareSerial BTSerial(2, 3); //RX,TX
+SoftwareSerial BTSerial(3, 2); //RX,TX
 //SoftwareSerial BTSerial(4, 5); //RX,TX
 /*image coordinate*/
 

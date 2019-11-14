@@ -1177,7 +1177,7 @@ void a_position_check(int* system_status) {
     //Serial.print(" | GyY = "); Serial.print(GyY);
     //Serial.print(" | GyZ = "); Serial.println(GyZ);
 
-    if (val_y < 0) {
+    if (val_y > 0) {
       if (checkCount == true) {
         checkCount = false;
         count = count + 1;
@@ -1189,7 +1189,7 @@ void a_position_check(int* system_status) {
       }
     }
 
-    if (val_y > 80) {
+    if (val_y < -80) {
       if (checkCount == false) {
         checkCount = true;
       } 
@@ -1257,8 +1257,9 @@ void b_position_check(int* system_status) {
     //Serial.print(" | GyX = "); Serial.println(GyX);
     //Serial.print(" | GyY = "); Serial.print(GyY);
     //Serial.print(" | GyZ = "); Serial.println(GyZ);
-
-    if (val_y < 0) {
+    Serial.print("Acy = "); 
+    Serial.println(val_y);
+    if (val_y < -10) {
       if (checkCount == true) {
         checkCount = false;
         count = count + 1;
@@ -1336,7 +1337,7 @@ void c_position_check(int* system_status) {
     //Serial.print(" | GyY = "); Serial.print(GyY);
     //Serial.print(" | GyZ = "); Serial.println(GyZ);
 
-    if (val_y > 70) {
+    if (val_y > 50) {
       if (checkCount == true) {
         checkCount = false;
         count = count + 1;
